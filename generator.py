@@ -9,8 +9,9 @@ def parse_config(config_file) -> dict:
     cp = configparser.ConfigParser()
     cp.read(config_file)
 
-    # ata ithe fkt key value pairs banavayachya aahet
     config = {}
+    # what I am doing is parsing the parameters for each distributions
+    # as mentioned in the configuration file, i.e. for each section of the config file
     for section in cp.sections():
         config[section] = dict(cp.items(section=section))
 
@@ -52,6 +53,7 @@ def generate_data(parameters):
     # modify the key values to correct datatype and case format
     parameters = convert_to_float(parameters)
     # will seed the random data
+    # print("Parameter", parameters)
     np.random.seed(parameters.get("rng").get("seed"))
     del parameters["rng"]  # as this is not required further
 
@@ -102,7 +104,7 @@ def generate_data(parameters):
 
 
 def write_to_csv(filename, generated_data) -> bool:
-    print("Generated Data here: ", generated_data)
+    # print("Generated Data here: ", generated_data)
     with open(filename, "w", newline="") as file:
         csv_writer = csv.writer(file)
         for distribution, data in generated_data.items():

@@ -17,6 +17,8 @@ def main():
 
     config_files = get_configs()
 
+    # is anything related to argparse needs to be done?
+
     # if none configs are found
     if not config_files:
         print("Unable to print config files in the current directory")
