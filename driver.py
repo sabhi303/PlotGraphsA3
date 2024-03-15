@@ -1,3 +1,4 @@
+import argparse
 import glob as glob
 from generator import parse_config, generate_data, write_to_csv
 from plotter import plot_graphs
@@ -10,7 +11,7 @@ def get_configs() -> list:
     return configs if len(configs) > 0 else False
 
 
-def main():
+def main(args):
     # following is the logic to get all configuration files and
     # later the generator will parse them, and create sequences as per the
     # configuration provided inside them
@@ -42,10 +43,19 @@ def main():
             print("Failed to write data in the csv file")
 
         # now the logic to plot this data
-        plot_graphs(f"{op_filename.replace('-data.csv', ' plot')}", generated_data)
+        # making use of the argparser
+        if args.plot:
+            plot_graphs(f"{op_filename.replace('-data.csv', ' plot')}", generated_data)
 
     return
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(
+        description="Generate data from configuration files and plot graphs"
+    )
+    parser.add_argument(
+        "--plot", action="store_true", help="Whether to plot the generated data"
+    )
+    args = parser.parse_args()
+    main(args)

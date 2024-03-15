@@ -17,6 +17,7 @@ def parse_config(config_file) -> dict:
 
     return config
 
+
 # convert all values to integer or floating of the dictionary
 # and convert keys to lowercase
 def convert_to_float(dictionary) -> dict:
