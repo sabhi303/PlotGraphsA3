@@ -39,9 +39,7 @@ def main(args):
 
         # change the filename & write that into csv
         op_filename = config_file.replace(".cfg", "-data.csv")
-        if write_to_csv(op_filename, generated_data):
-            print("Data written Successfully")
-        else:
+        if not   write_to_csv(op_filename, generated_data):
             print("Failed to write data in the csv file")
 
         # now the logic to plot this data
