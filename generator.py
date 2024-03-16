@@ -34,22 +34,22 @@ def convert_to_float(dictionary) -> dict:
 
 
 # inverse transform sampling functions for Dagum and Skellam distributions
-def inverse_transform_dagum(alpha, beta, p, seed, size=1):
-    np.random.seed(seed=seed)
-    u = np.random.random(size)
-    return (1 / beta) * ((1 - (1 - u) ** (1 / alpha)) ** (1 / p))
+def distribution_dagum(alpha, beta, p, seed=None, size=1):
+    if alpha <= 0 or beta <= 0 or p <= 0:
+        raise ValueError("Parameters alpha, beta, and p must be greater than 0.")
+    if seed is not None:
+        np.random.seed(seed=seed)
+    u = np.random.uniform(0, 1, size)
+    data = beta * ((1 - np.power(u, -1/alpha)) ** (-1/p) - 1)
+    return data
 
 
-def inverse_transform_skellam(mu1, mu2, seed, size=1):
+def distribution_skellam(mu1, mu2, seed, size=1):
     np.random.seed(seed=seed)
-    x = np.zeros(size)
-    for i in range(size):
-        p = mu1 / (mu1 + mu2)
-        s = np.random.poisson((mu1 + mu2) / 2)
-        s1 = np.random.binomial(s, p)
-        s2 = s - s1
-        x[i] = s1 - s2
-    return x
+    pois1 = np.random.poisson(mu1, size)
+    pois2 = np.random.poisson(mu2, size)
+    data = pois1 - pois2
+    return data
 
 
 def generate_data(parameters):
@@ -80,7 +80,7 @@ def generate_data(parameters):
                 scale=dist_params.get("scale"), size=dist_params.get("size")
             )
         elif distribution == "dag":
-            distributed_data = inverse_transform_dagum(
+            distributed_data = distribution_dagum(
                 alpha=dist_params.get("alpha"),
                 beta=dist_params.get("beta"),
                 p=dist_params.get("p"),
@@ -97,7 +97,7 @@ def generate_data(parameters):
                 lam=dist_params.get("lam"), size=dist_params.get("size")
             )
         elif distribution == "skellam":
-            distributed_data = inverse_transform_skellam(
+            distributed_data = distribution_skellam(
                 mu1=dist_params.get("mu1"),
                 mu2=dist_params.get("mu2"),
                 size=dist_params.get("size"),
