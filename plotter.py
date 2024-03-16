@@ -57,8 +57,8 @@ def plot_graphs(filename, generated_data):
         plt.xlabel("Distribution")
         # plt.set_ylabel("Y axis label")
 
-        plot_CDF(data, distribution, plt)
-        plot_box(data, distribution, plt)
+        plot_CDF(data.get("data"), distribution, plt)
+        plot_box(data.get("data"), distribution, plt)
 
         plt.tight_layout()
 

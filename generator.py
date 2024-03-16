@@ -33,13 +33,15 @@ def convert_to_float(dictionary) -> dict:
     return int_dictionary
 
 
-# Define the inverse transform sampling functions for Dagum and Skellam distributions
-def inverse_transform_dagum(alpha, beta, p, size=1):
+# inverse transform sampling functions for Dagum and Skellam distributions
+def inverse_transform_dagum(alpha, beta, p, seed, size=1):
+    np.random.seed(seed=seed)
     u = np.random.random(size)
     return (1 / beta) * ((1 - (1 - u) ** (1 / alpha)) ** (1 / p))
 
 
-def inverse_transform_skellam(mu1, mu2, size=1):
+def inverse_transform_skellam(mu1, mu2, seed, size=1):
+    np.random.seed(seed=seed)
     x = np.zeros(size)
     for i in range(size):
         p = mu1 / (mu1 + mu2)
@@ -55,7 +57,8 @@ def generate_data(parameters):
     parameters = convert_to_float(parameters)
     # will seed the random data
     # print("Parameter", parameters)
-    np.random.seed(parameters.get("rng").get("seed"))
+    seed = parameters.get("rng").get("seed")
+    np.random.seed(seed=seed)
     del parameters["rng"]  # as this is not required further
 
     generated_data = {}
@@ -82,6 +85,7 @@ def generate_data(parameters):
                 beta=dist_params.get("beta"),
                 p=dist_params.get("p"),
                 size=dist_params.get("size"),
+                seed=seed,
             )
         elif distribution == "geometric":
             distributed_data = np.random.geometric(
@@ -97,9 +101,15 @@ def generate_data(parameters):
                 mu1=dist_params.get("mu1"),
                 mu2=dist_params.get("mu2"),
                 size=dist_params.get("size"),
+                seed=seed,
             )
 
-        generated_data[distribution] = distributed_data
+        # this will maintain both the data and the parameters which
+        # have been used to generate the data
+        generated_data[distribution] = {
+            "data": distributed_data,
+            "parameters": tuple(dist_params.values()),
+        }
 
     return generated_data
 
@@ -109,5 +119,10 @@ def write_to_csv(filename, generated_data) -> bool:
     with open(filename, "w", newline="") as file:
         csv_writer = csv.writer(file)
         for distribution, data in generated_data.items():
-            csv_writer.writerow([f"{distribution}"] + data.tolist())
+            # this will store the data in the format:
+            # distribution_name (its parameters), ditribution
+            csv_writer.writerow(
+                [f"{distribution} {str(data.get('parameters'))}"]
+                + data.get("data").tolist()
+            )
     return True

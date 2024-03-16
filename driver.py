@@ -35,6 +35,8 @@ def main(args):
         generated_data = generate_data(parsed_config)
         # print(generated_data)
 
+        # return
+
         # change the filename & write that into csv
         op_filename = config_file.replace(".cfg", "-data.csv")
         if write_to_csv(op_filename, generated_data):
