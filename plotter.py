@@ -1,11 +1,11 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+from matplotlib.backends.backend_pdf import PdfPages
 import numpy as np
 
 
 # plot CDF
 def plot_CDF(data, title, plt):
-    plt.subplot(1, 2, 1)
     counts, bin_edges = np.histogram(data, bins=100, density=True)
     cdf = np.cumsum(counts)
     plt.plot(
@@ -18,16 +18,15 @@ def plot_CDF(data, title, plt):
         color="b",
         label="CDF",
     )
-    plt.title(f"{title} CDF")
-    plt.xlabel("Values")
-    plt.ylabel("Cumulative Probability")
+    plt.set_title(f"{title.upper()} CDF")
+    plt.set_xlabel("Values")
+    plt.set_ylabel("Cumulative Probability")
     plt.grid(True)
     plt.legend()
 
 
 # plt box plot
 def plot_box(data, title, plt):
-    plt.subplot(1, 2, 2)
     plt.boxplot(
         data,
         patch_artist=True,
@@ -39,8 +38,8 @@ def plot_box(data, title, plt):
         showbox=True,
         showfliers=True,
     )
-    plt.title(f"{title} Boxplot")
-    plt.xlabel("Values")
+    plt.set_title(f"{title.upper()} Boxplot")
+    plt.set_xlabel("Values")
     box_patch = mpatches.Patch(color="lightblue", label="Boxplot")
     median_patch = mpatches.Patch(color="green", label="Median")
     mean_patch = mpatches.Patch(color="red", label="Mean")
@@ -49,19 +48,25 @@ def plot_box(data, title, plt):
 
 
 def plot_graphs(filename, generated_data):
-    """Plot CDF and Boxplot and save as PDF files."""
-    for distribution, data in generated_data.items():
-        # print("Data", data)
+    
+    # pdf for CDFs
+    with PdfPages(filename + "CDF plots.pdf") as pdf:
+        for distribution, data in generated_data.items():
+            
+            figure, ax = plt.subplots(1, figsize=(10, 5))
+            plot_CDF(data.get("data"), distribution, ax)
+            plt.tight_layout()
+            # Save the current figure to the PDF
+            pdf.savefig(figure)
+            plt.close(figure)
 
-        plt.figure(figsize=(10, 5))
-        plt.xlabel("Distribution")
-        # plt.set_ylabel("Y axis label")
-
-        plot_CDF(data.get("data"), distribution, plt)
-        plot_box(data.get("data"), distribution, plt)
-
-        plt.tight_layout()
-
-        # plt.show()
-        plt.savefig(f"{filename}-{distribution}-CDF-Box.pdf")
-        plt.close()
+    # pdf for BoxPlots
+    with PdfPages(filename + "Box plots.pdf") as pdf:
+        for distribution, data in generated_data.items():
+            
+            figure, ax = plt.subplots(1, figsize=(10, 5))
+            plot_box(data.get("data"), distribution, ax)
+            plt.tight_layout()
+            # Save the current figure to the PDF
+            pdf.savefig(figure)
+            plt.close(figure)
